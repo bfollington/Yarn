@@ -12,6 +12,7 @@ This is my personal fork of Yarn (by @NoelFB and @infinite_ammo). It has been ad
 - [ ] Playback / demo mode (ala Twine 2.0)
 - [ ] Super simple build exporting `npm run build-mac` etc.
 - [ ] Hold space to click and drag to pan
+- [ ] Depending on how I feel, port to React over Knockout
 
 Yarn is heavily inspired by and based on the amazing Twine software: http://twinery.org/
 
