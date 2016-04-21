@@ -6,7 +6,7 @@ var data =
 	editingType: ko.observable(""),
 	editingFolder: ko.observable(null),
 
-	readFile: function(e, filename, clearNodes)
+	readFile: function(filename, clearNodes)
 	{
 		if (app.fs != undefined)
 		{
@@ -30,45 +30,28 @@ var data =
 				}
 			}));
 		}
-		else if (window.File && window.FileReader && window.FileList && window.Blob && e.target && e.target.files && e.target.files.length > 0)
-		{
-			var reader  = new FileReader();
-			reader.onloadend = function(e) 
-			{
-				if (e.srcElement && e.srcElement.result && e.srcElement.result.length > 0)
-				{
-					var contents = e.srcElement.result;
-					var type = data.getFileType(contents);
-					if (type == FILETYPE.UNKNOWN)
-						alert("Unknown filetype!");
-					else
-						data.loadData(contents, type, clearNodes);
-				}
-			}
-			reader.readAsText(e.target.files[0], "UTF-8");
-		}
 		else
 		{
 			alert("Unable to load file from your browser");
 		}
 	},
 
-	openFile: function(e, filename)
+	openFile: function(filename)
 	{
-		data.readFile(e, filename, true);
+		data.readFile(filename, true);
 
 		app.refreshWindowTitle(filename);
 	},
 
-	openFolder: function(e, foldername)
+	openFolder: function(foldername)
 	{
 		editingFolder = foldername;
-		alert("openFolder not yet implemented e: " + e + " foldername: " + foldername);
+		alert("openFolder not yet implemented, foldername: " + foldername);
 	},
 
-	appendFile: function(e, filename)
+	appendFile: function(filename)
 	{
-		data.readFile(e, filename, false);
+		data.readFile(filename, false);
 	},
 
 	getFileType: function(content)
@@ -77,7 +60,7 @@ var data =
 		// is json?
 		if (/^[\],:{}\s]*$/.test(clone.replace(/\\["\\\/bfnrtu]/g, '@').
 			replace(/"[^"\\\n\r]*"|true|false|null|-?\d+(?:\.\d*)?(?:[eE][+\-]?\d+)?/g, ']').
-			replace(/(?:^|:|,)(?:\s*\[)+/g, ''))) 
+			replace(/(?:^|:|,)(?:\s*\[)+/g, '')))
 			return FILETYPE.JSON;
 
 		// is xml?
@@ -171,7 +154,7 @@ var data =
 		{
 			var node = new Node();
 			app.nodes.push(node);
-			
+
 			var object = objects[i]
 			if (object.title != undefined)
 				node.title(object.title);
@@ -200,8 +183,8 @@ var data =
 		for (var i = 0; i < nodes.length; i ++)
 		{
 			content.push({
-				"title": nodes[i].title(), 
-				"tags": nodes[i].tags(), 
+				"title": nodes[i].title(),
+				"tags": nodes[i].tags(),
 				"body": nodes[i].body(),
 				"position": { "x": nodes[i].x(), "y": nodes[i].y() },
 				"colorID": nodes[i].colorID()
@@ -246,7 +229,7 @@ var data =
 	{
 		if (app.fs != undefined)
 		{
-			app.fs.writeFile(path, content, {encoding: 'utf-8'}, function(err) 
+			app.fs.writeFile(path, content, {encoding: 'utf-8'}, function(err)
 			{
 				data.editingPath(path);
 				if(err)
@@ -257,26 +240,18 @@ var data =
 
 	openFileDialog: function(dialog, callback)
 	{
-		dialog.bind("change", function(e)
-		{
-			// make callback
-			callback(e, dialog.val());
+		const electronDialog = require('electron').remote.dialog;
+		var file = electronDialog.showOpenDialog({ properties: [ 'openFile' ]});
 
-			// replace input field with a new identical one, with the value cleared
-			// (html can't edit file field values)
-			var saveas = '';
-			var accept = '';
-			if (dialog.attr("nwsaveas") != undefined)
-				saveas = 'nwsaveas="' + dialog.attr("nwsaveas") + '"'
-			if (dialog.attr("accept") != undefined)
-				saveas = 'accept="' + dialog.attr("accept") + '"'
+		callback(file[0]);
+	},
 
-			dialog.parent().append('<input type="file" id="' + dialog.attr("id") + '" ' + accept + ' ' + saveas + '>');
-			dialog.unbind("change");
-			dialog.remove();
-		});
+	openFolderDialog: function(dialog, callback)
+	{
+		const electronDialog = require('electron').remote.dialog;
+		var file = electronDialog.showOpenDialog({ properties: [ 'openDirectory' ]});
 
-		dialog.trigger("click");
+		callback(file[0]);
 	},
 
 	saveFileDialog: function(dialog, type, content)
@@ -286,7 +261,7 @@ var data =
 		if (app.fs)
 		{
 			dialog.attr("nwsaveas", file);
-			data.openFileDialog(dialog, function(e, path)
+			data.openFileDialog(dialog, function(path)
 			{
 				data.saveTo(path, content);
 				app.refreshWindowTitle(path);
@@ -316,7 +291,7 @@ var data =
 
 	tryOpenFolder: function()
 	{
-		data.openFileDialog($('#open-folder'), data.openFolder);
+		data.openFolderDialog($('#open-folder'), data.openFolder);
 	},
 
 	tryAppend: function()

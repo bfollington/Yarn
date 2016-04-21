@@ -33,7 +33,8 @@ var App = function(name, version)
 	// node-webkit
 	if (typeof(require) == "function")
 	{
-		this.gui = require('nw.gui');
+		this.browserWindow = require('electron').remote.BrowserWindow.getFocusedWindow();
+		this.electronApp = require('electron').remote.app;
 		this.fs = require('fs');
 	}
 
@@ -57,16 +58,6 @@ var App = function(name, version)
 		self.canvas = $(".arrows")[0];
 		self.context = self.canvas.getContext('2d');
 		self.newNode().title("Start");
-
-		if (osName != "Windows" && self.gui != undefined)
-		{
-			var win = self.gui.Window.get();
-			var nativeMenuBar = new self.gui.Menu({ type: "menubar" });
-			if(nativeMenuBar.createMacBuiltin) {
-				nativeMenuBar.createMacBuiltin("Yarn");
-			}
-			win.menu = nativeMenuBar;
-		}
 
 		// search field enter
 		self.$searchField.on("keydown", function (e)
@@ -140,7 +131,7 @@ var App = function(name, version)
 
 			$(".nodes").on("mousemove", function(e)
 			{
-				
+
 				if (dragging)
 				{
 					//if(e.ctrlKey)
@@ -166,12 +157,12 @@ var App = function(name, version)
 						}
 					}
 					else
-					{	
+					{
 						MarqueeOn = true;
 
 						var scale = self.cachedScale;
 
-						if(e.pageX > offset.x && e.pageY < offset.y) 
+						if(e.pageX > offset.x && e.pageY < offset.y)
 						{
 							MarqRect.x1 = offset.x;
 							MarqRect.y1 = e.pageY;
@@ -197,10 +188,10 @@ var App = function(name, version)
 							MarqRect.x1 = e.pageX;
 							MarqRect.y1 = offset.y;
 							MarqRect.x2 = offset.x;
-							MarqRect.y2 = e.pageY;	
+							MarqRect.y2 = e.pageY;
 						}
 
-						$("#marquee").css({ x:MarqRect.x1, 
+						$("#marquee").css({ x:MarqRect.x1,
 							y:MarqRect.y1,
 							width:Math.abs(MarqRect.x1-MarqRect.x2),
 							height:Math.abs(MarqRect.y1-MarqRect.y2)});
@@ -208,7 +199,7 @@ var App = function(name, version)
 						//Select nodes which are within the marquee
 						// MarqueeSelection is used to prevent it from deselecting already
 						// selected nodes and deselecting onces which have been selected
-						// by the marquee 
+						// by the marquee
 						var nodes = self.nodes();
 						for(var i in nodes)
 						{
@@ -217,10 +208,10 @@ var App = function(name, version)
 
 							//test the Marque scaled to the nodes x,y values
 
-							var holder = $(".nodes-holder").offset(); 
-							var marqueeOverNode = (MarqRect.x2 - holder.left) / scale > nodes[i].x()  
+							var holder = $(".nodes-holder").offset();
+							var marqueeOverNode = (MarqRect.x2 - holder.left) / scale > nodes[i].x()
 											   && (MarqRect.x1 - holder.left) / scale < nodes[i].x() + nodes[i].tempWidth
-        									   && (MarqRect.y2 - holder.top) / scale > nodes[i].y()   
+        									   && (MarqRect.y2 - holder.top) / scale > nodes[i].y()
         									   && (MarqRect.y1 - holder.top) / scale < nodes[i].y() + nodes[i].tempHeight;
 
 							if(marqueeOverNode)
@@ -242,7 +233,7 @@ var App = function(name, version)
 							}
 						}
 					}
-					
+
 				}
 
 			});
@@ -313,11 +304,11 @@ var App = function(name, version)
 				x += event.pageX / self.cachedScale;
 				y += event.pageY / self.cachedScale;
 
-				self.newNodeAt(x, y); 
-			} 
+				self.newNodeAt(x, y);
+			}
 
-			return !isAllowedEl; 
-		}); 
+			return !isAllowedEl;
+		});
 
 		$(document).on('keydown', function(e){
 			//global ctrl+z
@@ -395,22 +386,12 @@ var App = function(name, version)
 
 	this.quit = function()
 	{
-		if (self.gui != undefined)
-		{
-			self.gui.App.quit();
-		}
+		self.electronApp.quit();
 	}
 
 	this.refreshWindowTitle = function(editingPath)
 	{
-		var gui = require('nw.gui');
-
-		if (!gui) return;
-
-		// Get the current window
-		var win = gui.Window.get();
-
-		win.title = "Yarn - [" + editingPath + "] ";// + (self.dirty?"*":"");
+		self.browserWindow.setTitle("Yarn - [" + editingPath + "]");
 	}
 
 	this.recordNodeAction = function(action, node)
@@ -451,17 +432,17 @@ var App = function(name, version)
 
 		var historyItem = null;
 
-		if(direction == "undo") 
+		if(direction == "undo")
 			historyItem = self.nodeHistory.pop();
 		else
 			historyItem = self.nodeFuture.pop();
-		
+
 		if(!historyItem) return;
 
 		var action = historyItem.action;
 		var node = historyItem.node;
 
-		
+
 		if(direction == "undo") //undo actions
 		{
 			if(action == "created")
@@ -489,14 +470,14 @@ var App = function(name, version)
 			}
 
 			self.nodeHistory.push(historyItem);
-		}		
+		}
 	}
 
 	this.recreateNode = function(node, x, y)
 	{
 		self.nodes.push(node);
 		node.moveTo(x, y);
-		self.updateNodeLinks(); 
+		self.updateNodeLinks();
 	}
 
 	this.setSelectedColors = function(node)
@@ -505,7 +486,7 @@ var App = function(name, version)
 		nodes.splice(nodes.indexOf(node), 1);
 
 		for(var i in nodes)
-			nodes[i].colorID(node.colorID());		
+			nodes[i].colorID(node.colorID());
 	}
 
 	this.getSelectedNodes = function()
@@ -565,7 +546,7 @@ var App = function(name, version)
 		self.nodes.push(node);
 		if (updateArrows == undefined || updateArrows == true)
 			self.updateNodeLinks();
-		
+
 		self.recordNodeAction("created", node);
 
 		return node;
@@ -574,7 +555,7 @@ var App = function(name, version)
 	this.newNodeAt = function(x, y)
 	{
 		var node = new Node();
-		
+
 		self.nodes.push(node);
 
 		node.x(x-100);
@@ -586,7 +567,7 @@ var App = function(name, version)
 	}
 
 	this.removeNode = function(node)
-	{	
+	{
 		if(node.selected)
 		{
 			self.deleteSelectedNodes();
@@ -852,32 +833,26 @@ var App = function(name, version)
 			// ctrl + c
 			if ((e.metaKey || e.ctrlKey) && e.keyCode == 67)
 			{
-				if (self.gui != undefined)
-				{
-					var clipboard = self.gui.Clipboard.get();
-					clipboard.set(text.substr(startOffset, (endOffset - startOffset)), 'text');
-				}
+				var clipboard = require('electron').clipboard;
+				clipboard.writeText(text.substr(startOffset, (endOffset - startOffset)));
 			}
 			else
 			{
 				// ctrl + v
 				if ((e.metaKey || e.ctrlKey) && e.keyCode == 86)
 				{
-					var clipboard = self.gui.Clipboard.get();
+					var clipboard = require('electron').clipboard;
 					console.log(clipboard);
-					text = text.substr(0, startOffset) + clipboard.get('text') + text.substr(endOffset);
-					startOffset = endOffset = (startOffset + clipboard.get('text').length);
+					text = text.substr(0, startOffset) + clipboard.readText() + text.substr(endOffset);
+					startOffset = endOffset = (startOffset + clipboard.readText().length);
 				}
 				// ctrl + x
 				else if ((e.metaKey || e.ctrlKey) && e.keyCode == 88)
 				{
-					if (self.gui != undefined)
-					{
-						var clipboard = self.gui.Clipboard.get();
-						clipboard.set(text.substr(startOffset, (endOffset - startOffset)), 'text');
-						text = text.substr(0, startOffset) + text.substr(endOffset);
-						endOffset = startOffset;
-					}
+					var clipboard = require('electron').clipboard;
+					clipboard.writeText(text.substr(startOffset, (endOffset - startOffset)));
+					text = text.substr(0, startOffset) + text.substr(endOffset);
+					endOffset = startOffset;
 				}
 				// increment if we just hit enter
 				else if (e.keyCode == 13)

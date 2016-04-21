@@ -7,7 +7,9 @@
 		<link rel="stylesheet" href="css/style.css">
 
 		<!-- libraries -->
-		<script type="text/javascript" src="js/libs/jquery-1.11.2.min.js"></script>
+		<script type="text/javascript">
+			window.$ = window.jQuery = require('jquery');
+		</script>
 		<script type="text/javascript" src="js/libs/jquery.mousewheel.min.js"></script>
 		<script type="text/javascript" src="js/libs/transit.js"></script>
 		<script type="text/javascript" src="js/libs/knockout-3.3.0.js"></script>
@@ -76,7 +78,7 @@
 						<span class="item" data-bind="click: function() { data.trySave(FILETYPE.JSON); }">Save As Json...</span>
 						<span class="item" data-bind="click: function() { data.trySave(FILETYPE.TWEE); }">Save As Twee...</span>
 						<span class="item" data-bind="click: function() { data.trySave(FILETYPE.XML); }">Save As Xml...</span>
-						<!--<span class="item" data-bind="click: app.quit">Close</span>-->
+						<span class="item" data-bind="click: app.quit">Close</span>
 					</div>
 				</div>
 			</div>
@@ -118,9 +120,9 @@
 					<div class="editor-container">
 						<div class="editor" id="editor"
 							data-bind="
-							ace: app.editing().body, 
+							ace: app.editing().body,
 							aceOptions: { mode: 'yarn', theme: 'yarn', showPrintMargin: false }">
-						</div> 
+						</div>
 					</div>
 					<!--<div class="icon close" data-bind="click:app.saveNode"></div>-->
 				</div>
