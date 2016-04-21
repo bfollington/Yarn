@@ -1,16 +1,27 @@
 # Yarn
 
-Dialogue editor created for "Night in the Woods" (and other projects) by @NoelFB and @infinite_ammo with contributions from @seiyria and @beeglebug. It is heavily inspired by and based on the amazing Twine software: http://twinery.org/
+This is my personal fork of Yarn (by @NoelFB and @infinite_ammo). It has been adapted to run in Electron rather than nw.js and currently does not support running in a regular browser. 
+
+## Planned Improvements / Changes
+
+- [ ] Auto-create nodes when referencing a new key (ala Twine 2.0)
+- [ ] Fast jump-to-node functionality from anywhere (autosuggest while typing node name)
+- [ ] When creating a new node immediately open the editor (make this a preference)
+- [ ] When adding a link in the editor, autosuggest node names
+- [ ] When referencing a variable in the editor, autosuggest variable names
+- [ ] Playback / demo mode (ala Twine 2.0)
+- [ ] Super simple build exporting `npm run build-mac` etc.
+- [ ] Hold space to click and drag to pan
+
+Yarn is heavily inspired by and based on the amazing Twine software: http://twinery.org/
 
 ![Screenshot](http://infiniteammo.com/Yarn/screenshot.jpg)
 
-# Builds
+# Running
 
-Browser: http://infiniteammo.com/yarn/ (warning: saving not working quite right yet)
+Just clone the repository and then:
 
-Win64: http://infiniteammo.com/Yarn/Yarn-2016-02-27-win.zip
-
-MacOS: http://infiniteammo.com/Yarn/Yarn-2016-02-18-mac.zip
+`npm install && npm start`
 
 # Examples
 
@@ -63,15 +74,6 @@ https://github.com/InfiniteAmmoInc/yarn-test
 You can find a more advanced Yarn interpreter here: 
 
 https://github.com/thesecretlab/YarnSpinner
-
-# How to Run the Yarn Source as an App
-
-Download http://nwjs.io/ for your platform and extract the contents.
-
-Win64: Download the latest nwjs for Windows 64bit. Extract the content to wherever you like. Drag the yarn folder into nw.exe and it should run yarn! (if not ensure that the yarn folder has package.json in it). Alternitavely run nw.exe and navigate to C:/path_to_yarn/Yarn/app/index.html 
-
-MacOS: Place source code in a new folder named "app.nw" inside the extracted nwjs.app's "Contents/Resources/" folder.
-(to explore an app's folder structure, right click and select "Show Package Contents")
 
 # Yarn Icon
 
